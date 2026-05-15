@@ -1,0 +1,52 @@
+name: Veille IA
+
+on:
+  schedule:
+    # 5h UTC = 7h Paris (été) / 6h Paris (hiver) — matin
+    # 16h UTC = 18h Paris (été) / 17h Paris (hiver) — soir
+    - cron: "0 5,16 * * *"
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: "morning or evening"
+        required: false
+        default: "morning"
+        type: choice
+        options:
+          - morning
+          - evening
+      dry_run:
+        description: "Ne pas envoyer le mail"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Run Veille IA
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+        run: |
+          ARGS=""
+          if [ "${{ github.event.inputs.slot }}" = "evening" ]; then ARGS="$ARGS --evening"; fi
+          if [ "${{ github.event.inputs.slot }}" = "morning" ]; then ARGS="$ARGS --morning"; fi
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          node scripts/index.mjs $ARGS

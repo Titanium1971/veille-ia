@@ -17,7 +17,10 @@ function parseArgs(argv) {
 }
 
 function checkEnv(dryRun) {
-  const auth = process.env.CLAUDE_CODE_OAUTH_TOKEN || process.env.ANTHROPIC_API_KEY;
+  const auth =
+    process.env.CLAUDE_CODE_OAUTH_TOKEN ||
+    process.env.ANTHROPIC_API_KEY ||
+    process.env.CLAUDE_CODE_OAUTH_TOKEN_FILE_DESCRIPTOR;
   if (!auth) {
     console.error("Manque CLAUDE_CODE_OAUTH_TOKEN (recommandé pour Max) ou ANTHROPIC_API_KEY.");
     console.error("Pour générer un token Max headless : `claude setup-token` en local, puis stocker la sortie en secret GitHub.");

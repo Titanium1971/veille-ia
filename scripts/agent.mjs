@@ -1,5 +1,5 @@
 import { query } from "@anthropic-ai/claude-agent-sdk";
-import { INTERESTS, MAX_ITEMS_TO_SUMMARIZE } from "./config.mjs";
+import { INTERESTS, MAX_ITEMS_TO_SUMMARIZE, MAX_ITEMS_TOTAL } from "./config.mjs";
 
 const SYSTEM_PROMPT = `Tu es l'assistant de veille IA quotidienne de Cyril.
 
@@ -29,11 +29,18 @@ function formatItems(items) {
 }
 
 export async function summarize(bundle) {
-  const items = [...bundle.arxiv, ...bundle.hf, ...bundle.blogs, ...bundle.newsletters];
+  const allItems = [...bundle.arxiv, ...bundle.hf, ...bundle.blogs, ...bundle.newsletters];
 
-  if (items.length === 0) {
+  if (allItems.length === 0) {
     return "_Aucune nouveauté détectée sur les sources surveillées dans la dernière fenêtre._";
   }
+
+  const items = allItems
+    .slice()
+    .sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
+    .slice(0, MAX_ITEMS_TOTAL);
+
+  console.log(`[veille] envoi ${items.length}/${allItems.length} items à Claude`);
 
   const userPrompt = `Items à analyser (${items.length} bruts) :\n\n${formatItems(items)}`;
 

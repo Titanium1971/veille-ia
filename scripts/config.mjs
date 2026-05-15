@@ -17,10 +17,11 @@ export const SOURCES = {
   hfTrendingUrl:
     "https://huggingface.co/api/models?sort=trendingScore&direction=-1&limit=15",
   blogs: [
-    { name: "Anthropic", url: "https://www.anthropic.com/rss.xml" },
-    { name: "OpenAI", url: "https://openai.com/blog/rss.xml" },
-    { name: "Google DeepMind", url: "https://deepmind.google/blog/rss.xml" },
-    { name: "Mistral AI", url: "https://mistral.ai/news/rss.xml" },
+    // TODO confirmer/corriger ces URLs RSS (Anthropic + Mistral sortent 404 actuellement)
+    // { name: "Anthropic", url: "https://www.anthropic.com/rss.xml" },
+    // { name: "OpenAI", url: "https://openai.com/blog/rss.xml" },
+    // { name: "Google DeepMind", url: "https://deepmind.google/blog/rss.xml" },
+    // { name: "Mistral AI", url: "https://mistral.ai/news/rss.xml" },
   ],
   newsletters: [
     { name: "Simon Willison", url: "https://simonwillison.net/atom/everything/" },
@@ -30,6 +31,8 @@ export const SOURCES = {
 
 export const TIME_WINDOW_HOURS = 24;
 export const MAX_ITEMS_TO_SUMMARIZE = 8;
+export const MAX_ITEMS_PER_SOURCE = 30;
+export const MAX_ITEMS_TOTAL = 100;
 
 export const EMAIL_FROM = process.env.EMAIL_FROM || "Veille IA <onboarding@resend.dev>";
 export const EMAIL_TO = process.env.EMAIL_TO || "ccdeveloppement@gmail.com";

@@ -1,10 +1,12 @@
 name: Veille IA
 
+# Le declenchement planifie est desactive : le workflow echouait deux fois par
+# jour depuis juillet 2026 faute des secrets CLAUDE_CODE_OAUTH_TOKEN et
+# RESEND_API_KEY (voir README). Reactiver le bloc "schedule" une fois les
+# secrets configures dans Settings > Secrets and variables > Actions.
 on:
-  schedule:
-    # 5h UTC = 7h Paris (été) / 6h Paris (hiver) — matin
-    # 16h UTC = 18h Paris (été) / 17h Paris (hiver) — soir
-    - cron: "0 5,16 * * *"
+  # schedule:
+  #   - cron: "0 5,16 * * *"   # 5h et 16h UTC
   workflow_dispatch:
     inputs:
       slot:
@@ -37,6 +39,19 @@ jobs:
           cache: "npm"
 
       - run: npm ci
+
+      - name: Verifier les secrets requis
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          missing=""
+          [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ] && missing="$missing CLAUDE_CODE_OAUTH_TOKEN"
+          [ -z "$RESEND_API_KEY" ] && missing="$missing RESEND_API_KEY"
+          if [ -n "$missing" ]; then
+            echo "::error::Secrets manquants :$missing. Les configurer dans Settings > Secrets and variables > Actions."
+            exit 1
+          fi
 
       - name: Run Veille IA
         env:
